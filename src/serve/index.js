@@ -44,13 +44,7 @@ module.exports = function(kos) {
     const reflectJs = await getReflectJs(opts);
     debug('start reflectJs', reflectJs);
 
-    if (opts.customServer) {
-      kos.log.verbose('[dev]', 'use custom server');
-      return require(reflectJs);
-    }
-    const result = await require('./app').start(require(reflectJs), opts);
-    debug('start result', result);
-    return result;
+    return require(reflectJs);
   }
 
   function getReflectJs(opts) {
@@ -66,10 +60,10 @@ module.exports = function(kos) {
     debug('builder:', builder);
 
     if (builder) {
-      kos.log.info('[dev]', '使用 `%s/%s` 启动服务器', builder, 'reflect.js');
-      debug('getReflectJs:', kos.store.resolve(builder + '/reflect.js'));
+      kos.log.info('[dev]', '使用 `%s/%s` 启动服务器', builder, 'server.js');
+      debug('getReflectJs:', kos.store.resolve(builder + '/server.js'));
 
-      return kos.store.resolve(builder + '/reflect.js');
+      return kos.store.resolve(builder + '/server.js');
     }
   }
 

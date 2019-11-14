@@ -47,7 +47,7 @@ module.exports = async function (opts) {
       'registry': opts.registry,
       'timeout': opts.timeout || TIMEOUT,
       'ignoreScripts': false,
-      'root': path.join(opts.storeDir, opts.pkgs.name),
+      'root': opts.root,
       'pkgs': opts.pkgs
     });
   }).catch(err => {
