@@ -1,0 +1,27 @@
+{
+  "name": "@saasfe/kos-core",
+  "version": "0.0.1",
+  "description": "kos core",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "louisa.ly",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.7.1",
+    "co": "^4.6.0",
+    "colors": "^1.4.0",
+    "debug": "^4.1.1",
+    "fs-extra": "^8.1.0",
+    "inquirer": "^7.0.0",
+    "json-parse-helpfulerror": "^1.0.3",
+    "npminstall": "^3.23.0",
+    "npmlog": "^4.1.2",
+    "on-exit": "^1.0.1",
+    "ora": "^4.0.3",
+    "util": "^0.12.1",
+    "yargs-parser": "^16.1.0",
+    "yeoman-environment": "^2.6.0"
+  }
+}
