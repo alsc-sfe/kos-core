@@ -200,7 +200,7 @@ module.exports = class Kos {
 
   async runKit(cmd, kitType, opts, actionCtx, actionArgs) {
     if(cmd == 'init'){
-      await this.store.install(`@saasfe/def-kit-${kitType}`);
+      await this.store.install(`@saasfe/kos-kit-${kitType}`);
       await this.store.install(`@saasfe/generator-${kitType}`);
 
       await this.yo.run({
@@ -215,14 +215,12 @@ module.exports = class Kos {
       const builder = configJson.assets.builder.name;
       await this.store.install(builder);
 
-      await this.serve.start(opts);
-
+      await this.serve.start();
     }
 
   }
 
   lookupConfigJson(cwd) {
-    debug('lookupConfigJSon');
     const abcFile = lookupConfigFile.call(this, cwd);
     debug('configFile: %s', abcFile);
     if (!abcFile) {
@@ -342,7 +340,7 @@ module.exports = class Kos {
       debug('use cache');
       return this._serve;
     }
-    this._serve = require('./serve')(this);
+    this._serve = require('./serve/')(this);
     debug('use require');
     return this._serve;
   }

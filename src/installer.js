@@ -47,8 +47,7 @@ module.exports = async function (opts) {
       'registry': opts.registry,
       'timeout': opts.timeout || TIMEOUT,
       'ignoreScripts': false,
-      'root': opts.root,
-      // 'pkgs': [ { name: 'co', version: 'latest' } ],
+      'root': path.join(opts.storeDir, opts.pkgs.name),
       'pkgs': opts.pkgs
     });
   }).catch(err => {

@@ -50,8 +50,8 @@ module.exports = class Store {
       debug('install.missing');
       await installer({
         'registry': 'http://registry.npmjs.org/',
-        'root': this._realRoot(name),
-        'pkgs': [{'name': name, 'version': 'laster'}]
+        'root': path.join(this._realRoot(name), name),
+        'pkgs': [{'name': name, 'version': 'latest'}]
       });
       return true;
     }
