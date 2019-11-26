@@ -1,5 +1,5 @@
 {
-  "name": "@alsc-sfe/kos-core",
+  "name": "@saasfe/kos-core",
   "version": "0.0.4",
   "description": "kos core",
   "main": "index.js",
