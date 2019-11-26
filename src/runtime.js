@@ -1,13 +1,13 @@
 'use strict';
 
-const debug = require('debug')('def:runtime');
+const debug = require('debug')('kos:runtime');
 const Util = require('./util');
 
 let ctx = null;
 
-module.exports = function(def) {
+module.exports = function(kos) {
 
-  ctx = def;
+  ctx = kos;
 
   return {'create': create};
 
@@ -102,7 +102,7 @@ module.exports = function(def) {
         const fs = require('fs');
         const shorten = function(str) {
           return str.replace(
-            new RegExp(path.join(ctx._home, 'def_modules', kit.name, 'node_modules', '.\\d+.\\d+.\\d+@'), 'ig'), 
+            new RegExp(path.join(ctx._home, 'kos_modules', kit.name, 'node_modules', '.\\d+.\\d+.\\d+@'), 'ig'), 
             ''
           );
         };
@@ -143,11 +143,6 @@ module.exports = function(def) {
         return ctx.yo.run(opts);
       }
     };
-
-    // depreted
-    Object.defineProperty(runtime.kit, 'scm', {
-      'get': function() { return ctx.repo; }
-    });
 
     Object.defineProperty(runtime.kit, 'build', {
       'get': function() { return ctx.builder; }

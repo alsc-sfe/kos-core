@@ -16,6 +16,7 @@ module.exports = class Kos {
     this._kit = null;
     this._yo = null;
     this._serve = null;
+    this._build = null;
 
     this._registry = opts.registry || 'http://registry.npmjs.org/';
   }
@@ -218,6 +219,16 @@ module.exports = class Kos {
       await this.serve.start();
     }
 
+    if(cmd == 'build') {
+      console.log('in build');
+      // kit & builder
+      const configJson = this.lookupConfigJson();
+      const builder = configJson.assets.builder.name;
+      await this.store.install(builder);
+
+      // build
+      await this.build.start();
+    }
   }
 
   lookupConfigJson(cwd) {
@@ -343,6 +354,17 @@ module.exports = class Kos {
     this._serve = require('./serve/')(this);
     debug('use require');
     return this._serve;
+  }
+
+  get build() {
+    debug('get build');
+    if (this._build) {
+      debug('use cache');
+      return this._build;
+    }
+    this._build = require('./build')(this);
+    debug('use require');
+    return this._build;
   }
 }
 

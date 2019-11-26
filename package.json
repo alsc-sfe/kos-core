@@ -1,6 +1,6 @@
 {
-  "name": "@saasfe/kos-core",
-  "version": "0.0.3",
+  "name": "@alsc-sfe/kos-core",
+  "version": "0.0.4",
   "description": "kos core",
   "main": "index.js",
   "scripts": {
@@ -13,6 +13,7 @@
     "co": "^4.6.0",
     "colors": "^1.4.0",
     "connect-livereload": "^0.6.1",
+    "cross-spawn": "^7.0.1",
     "debug": "^4.1.1",
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
