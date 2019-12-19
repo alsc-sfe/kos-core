@@ -135,6 +135,8 @@ module.exports = class Kos {
   }
 
   _onCommandStart(data) {
+    debug('_onCommandStart data', data);
+    console.log('_onCommandStart data', data);
     this._cmdInfo = this._getCmdInfo(data.cmd);
     let realCmd = this._cmdInfo.name;
     if (this._cmdInfo.sub) {
@@ -193,13 +195,17 @@ module.exports = class Kos {
       if (!configJson) {
         throw new Error('项目 `abc.json` 文件未找到，请检查执行目录是否正确');
       }
+      debug('_preUse configJson:', configJson);
 
       kitType = configJson.kit || configJson.type || 'unknown';
-      await this.runKit(info.name, kitType);
+      await this.runKit(info.name, kitType, info.type);
     }
   }
 
   async runKit(cmd, kitType, opts, actionCtx, actionArgs) {
+    debug('runKit kitType', kitType)
+    debug('runKit opts:', opts);
+
     if(cmd == 'init'){
       await this.store.install(`@saasfe/kos-kit-${kitType}`);
       await this.store.install(`@saasfe/generator-${kitType}`);
@@ -225,9 +231,10 @@ module.exports = class Kos {
       const configJson = this.lookupConfigJson();
       const builder = configJson.assets.builder.name;
       await this.store.install(builder);
-
+      const publishEnv = opts.split('-')[1];
       // build
-      await this.build.start();
+      const build = await this.build.start();
+      build(publishEnv);
     }
   }
 
@@ -367,4 +374,3 @@ module.exports = class Kos {
     return this._build;
   }
 }
-

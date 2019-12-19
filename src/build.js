@@ -13,12 +13,11 @@ module.exports = function(kos) {
   async function start() {
     const reflectJs = await getReflectJs();
     console.log('start reflectJs', reflectJs);
-
     return require(reflectJs);
   }
 
   function getReflectJs() {
-    console.log('getReflectJs');
+    debug('getReflectJs');
 
     let builder = '';
     let configJson = kos.lookupConfigJson() || {};
