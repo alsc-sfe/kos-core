@@ -49,7 +49,7 @@ module.exports = class Store {
     if (!this.resolve(name)) {
       debug('install.missing');
       await installer({
-        'registry': 'http://registry.npmjs.org/',
+        'registry': 'https://registry.npm.taobao.org',
         'root': path.join(this._realRoot(name), name),
         'pkgs': [{'name': name, 'version': 'latest'}]
       });

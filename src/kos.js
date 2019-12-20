@@ -18,7 +18,7 @@ module.exports = class Kos {
     this._serve = null;
     this._build = null;
 
-    this._registry = opts.registry || 'http://registry.npmjs.org/';
+    this._registry = opts.registry || 'https://registry.npm.taobao.org';
   }
 
     /*

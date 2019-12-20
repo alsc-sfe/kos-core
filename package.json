@@ -1,6 +1,6 @@
 {
   "name": "@saasfe/kos-core",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "kos core",
   "main": "index.js",
   "scripts": {
