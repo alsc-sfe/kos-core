@@ -231,6 +231,10 @@ module.exports = class Kos {
       const configJson = this.lookupConfigJson();
       const builder = configJson.assets.builder.name;
       await this.store.install(builder);
+      if(!opts) {
+        console.error('缺少环境，例如 kos build -daily');
+        return;
+      }
       const publishEnv = opts.split('-')[1];
       // build
       const build = await this.build.start();
