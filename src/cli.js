@@ -244,9 +244,9 @@ class Command extends EventEmitter {
     return this._name == arg || this._alias == arg;
   }
 
-  * parse(argv, config) {
+  async parse(argv, config) {
     config = config || {};
-
+    debugger;
     if (this._parent != null) {
       throw new Error('`parse` should called at root command.');
     }
@@ -264,7 +264,8 @@ class Command extends EventEmitter {
       remainedArgv = argv.slice(idx + 1);
       argv = argv.slice(0, idx);
     }
-
+    debug('parse remainedArgv', remainedArgv);
+    debug('parse argv', argv);
     optsConfig = {
       'alias': {},
       'default': {},
@@ -289,93 +290,59 @@ class Command extends EventEmitter {
       'opts': null
     };
 
+    debug('parse parsed', parsed);
+
     this._parse(argv, optsConfig, parsed);
     this.emit('parsed', {'parsed': parsed});
 
     if (config.use == 'parser') {
       return parsed;
     }
-
-    if (!parsed.cmd) {
-      return {'cmd': parsed.argv._[0], '$error': 'invalid command'};
-    }
-
-    if (parsed.argv.version) {
-      let v = parsed.cmd.version() || this.version();
-      console.log(v);
-      return v;
-    }
-
-    let errArg = parsed.args.filter(arg => arg.err)[0];
-    if (errArg) {
-      // parsed.cmd.error(errArg.err + ' `' + errArg.name + '`.', true);
-      return {'$error': 'invalid arg'};
-    }
-
-    let errOpt = null;
-    for (let k in parsed.opts.opts) {
-      if (parsed.opts.opts[k].err) {
-        errOpt = parsed.opts.opts[k];
-        break;
-      }
-    }
-    if (errOpt) {
-      // parsed.cmd.error(errOpt.err + ' `' + errOpt.opt.flag + '`.', true);
-      return {'$error': 'invalid opt'};
-    }
-
-    let actionFn = parsed.cmd.action();
-
-    if (typeof actionFn != 'function') {
-      // this.error('can not find action fn of command `' + parsed.cmd.name() + '`.');
-      return {'$error': 'invalid action fn'};
-    }
-
-    let applyArgs, applyOpts, applyCtx;
-
-    let applyData = this._apply(parsed);
-    console.log('parsed applyData', applyData);
-
-
-    applyArgs = applyData.args;
-    applyOpts = applyData.opts;
-    applyCtx = applyData.ctx;
-
-    // apply ctx.
-    if (typeof config.applyCtx == 'function') {
-      applyCtx = config.applyCtx(applyCtx);
-    }
-
-    this.emit('command.start', {
-      'cmd': parsed.cmd,
-      'args': applyArgs
-    });
-    const result = yield co.apply(null, [actionFn.bind(applyCtx)].concat(applyArgs));
-    console.log('parsed result', result);
-    return result;
   }
 
-  _apply(parsed) {
-    let applyArgs = [];
-    let applyOpts = {};
-    let applyCtx = {'cmd': parsed.cmd};
+  _parse(argv, optsConfig, parsed) {
+    optsConfig = this._optsConfig(optsConfig);
+    parsed.argv = parser(argv, optsConfig);
 
-    // apply args.
-    parsed.args.forEach(arg => applyArgs.push(arg.val));
+    let ctx = parsed.cmd || this;
+    let name = parsed.argv._[0];
+    let cmd = ctx.find(name);
+    if (cmd) {
+      let idx = argv.indexOf(name);
+      if (idx != -1) {
+        argv.splice(idx, 1);
+      }
+      parsed.cmd = cmd;
 
-    // apply opts.
-    for (let k in parsed.opts.opts) {
-      applyOpts[camelcase(k)] = parsed.opts.opts[k].val;
+      return cmd._parse(argv, optsConfig, parsed);
     }
-    applyOpts['--'] = parsed['--'];
-    applyOpts['$'] = parsed.opts.unknown;
-    applyArgs.push(applyOpts);
 
-    return {
-      'args': applyArgs,
-      'opts': applyOpts,
-      'ctx': applyCtx
-    };
+    debug('_parse optsConfig', parsed);
+
+
+    if (!name) {
+      parsed.cmd = this;
+    }
+  }
+
+  _optsConfig(config) {
+    this._opts.forEach(opt => {
+      if (opt.alias) {
+        config.alias[opt.name] = opt.alias;
+      }
+      if (opt.defaultVal != null) {
+        config.default[opt.name] = opt.defaultVal;
+      }
+      if (opt.narg != null) {
+        config.narg[opt.name] = opt.narg;
+      }
+
+      if (config[opt.type] && (config[opt.type].indexOf(opt.name) == -1)) {
+        config[opt.type].push(opt.name);
+      }
+    });
+
+    return config;
   }
 }
 

@@ -73,8 +73,14 @@ module.exports = class Kos {
 
     // pre parse to use kit.
     if (!this.kit.key) {
+      const parsed = await this.cli.parse(argv, {'use': 'parser'});
+      debug('parsed', parsed);
+
       try {
-        await this._preUse(argv);
+        await this._preUse({
+          argv: argv,
+          opts: parsed.argv,
+        });
       } catch(e) {
         this.log.verbose('[core]', 'cli pre use error');
         console.log('run err', e);
@@ -114,9 +120,7 @@ module.exports = class Kos {
       }
     );
     this.cli.option('-V, --verbose', '显示详细日志信息');
-    this.cli
-      .on('parsed', this._onParsed.bind(this))
-      .on('command.start', this._onCommandStart.bind(this))
+    this.cli.on('parsed', this._onParsed.bind(this));
   }
 
   async _init() {
@@ -129,53 +133,19 @@ module.exports = class Kos {
   }
 
   _onParsed(data) {
+    debugger;
     this._parsed = data.parsed;
     this.verbose = data.parsed.argv.verbose;
     debug('onParsed', data.parsed);
   }
 
-  _onCommandStart(data) {
-    debug('_onCommandStart data', data);
-    console.log('_onCommandStart data', data);
-    this._cmdInfo = this._getCmdInfo(data.cmd);
-    let realCmd = this._cmdInfo.name;
-    if (this._cmdInfo.sub) {
-      realCmd += ' ' + this._cmdInfo.sub;
-    }
-    debug('_onCommandStart', data, realCmd, data.args);
-    this.log.verbose('[core]', 'cmd `%s` start with= %j', realCmd, data.args);
-  }
-
-  _getCmdInfo(cmd) {
-    let cmdName = '';
-    let cmdGroup = '';
-    let cmdSub = '';
-    if (cmd) {
-      cmdName = cmd.name();
-      cmdGroup = cmd.group();
-      if (cmd._parent && cmd._parent.name() != 'kos') {
-        cmdName = cmd._parent.name();
-        cmdGroup = cmd._parent.group();
-        cmdSub = cmd.name();
-      }
-    }
-
-    const result = {
-      'name': cmdName,
-      'group': cmdGroup,
-      'sub': cmdSub
-    };
-
-    debug('_getCmdInfo', result);
-    return result;
-  }
-
-  async _preUse(argv) {
+  async _preUse(data) {
+    const { argv, opts } = data;
     const info = {
       name: argv[0],
       type: argv[1],
     };
-    debug('_preUse parsed:', info);
+    debug('_preUse parsed:', opts);
 
     let configJson = null;
     let kitType = 'unknown';
@@ -198,7 +168,7 @@ module.exports = class Kos {
       debug('_preUse configJson:', configJson);
 
       kitType = configJson.kit || configJson.type || 'unknown';
-      await this.runKit(info.name, kitType, info.type);
+      await this.runKit(info.name, kitType, opts);
     }
   }
 
@@ -231,14 +201,13 @@ module.exports = class Kos {
       const configJson = this.lookupConfigJson();
       const builder = configJson.assets.builder.name;
       await this.store.install(builder);
-      if(!opts) {
-        console.error('缺少环境，例如 kos build -daily');
+      if(!opts.env && !opts.version) {
+        console.error('缺少变量，例如 kos build --env daily --appVersion 1.0.0');
         return;
       }
-      const publishEnv = opts.split('-')[1];
       // build
       const build = await this.build.start();
-      build(publishEnv);
+      build(opts);
     }
   }
 
@@ -278,7 +247,7 @@ module.exports = class Kos {
       if (!this._endTime && this._parsed) {
         this._endTime = Date.now();
         try {
-          this.track({'time_used': this._endTime - this._startTime});
+          console.log('time_used', this._endTime - this._startTime)
         } catch(e) {
           debug('onExit track error', e);
         }
@@ -286,7 +255,7 @@ module.exports = class Kos {
     }.bind(this);
 
     require('on-exit')(onExit);
-  }
+  };
 
   onFatal(e, p) {
     debug('onFatal', e, p);
