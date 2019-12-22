@@ -29,7 +29,7 @@ module.exports = class Kos {
 
     opts = opts || {};
     debug('start', opts);
-
+    this._startTime = Date.now();
 
     process.on('uncaughtException', this.onFatal);
     process.on('unhandledRejection', this.onFatal);
@@ -247,7 +247,7 @@ module.exports = class Kos {
       if (!this._endTime && this._parsed) {
         this._endTime = Date.now();
         try {
-          console.log('time_used', this._endTime - this._startTime)
+          console.log('time_used', `${this._endTime - this._startTime}ms`)
         } catch(e) {
           debug('onExit track error', e);
         }
