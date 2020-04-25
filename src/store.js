@@ -44,9 +44,9 @@ module.exports = class Store {
 
   async install(name) {
     debug('install', name);
-
+    const filepath = this.resolve(name);
     // 本地缺失
-    if (!this.resolve(name)) {
+    if (!filepath) {
       debug('install.missing');
       await installer({
         'registry': 'https://registry.npm.taobao.org',
@@ -54,6 +54,27 @@ module.exports = class Store {
         'pkgs': [{'name': name, 'version': 'latest'}]
       });
       return true;
+    } else if (Util.isBuilder(name) || Util.isGenerator(name) || Util.isKit(name)) {
+      debug('install.update');
+      const originVersion = Util.getOriginVersion(name); // 远端版本号
+      let configJson = fs.readFileSync(path.join(filepath, 'package.json'), 'utf8');
+      configJson = require('json-parse-helpfulerror').parse(configJson);
+      const localVersion = configJson.version; // 本地版本号
+      console.log('依赖包：' + name + '本地版本号：'+ localVersion + ' 远端版本号：' + originVersion);
+      if (localVersion !== originVersion) {
+        console.log('依赖包：' + name + '即将更新至最新版本...');
+        try {
+          fs.emptyDirSync(path.resolve(filepath));
+        } catch(err) {
+          console.error('清空依赖包'+ name +'内容出错 ERROR: ' + err);
+          return true;
+        }
+        await installer({
+          'registry': 'https://registry.npm.taobao.org',
+          'root': path.join(this._realRoot(name), name),
+          'pkgs': [{'name': name, 'version': 'latest'}]
+        });
+      }
     }
 
     return true;
