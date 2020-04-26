@@ -62,6 +62,15 @@ util.getMsvsVersion = function() {
   return '';
 };
 
+util.getOriginVersion = function(name) {
+  try {
+    return execSync('npm view ' + name + ' version').toString().trim();;
+  } catch(err) {
+    console.error('npm view ' + name + ' version ERROR:' + err.message);
+  }
+  return '';
+};
+
 util.generatePath = function(m, suffix, flatten) {
   if (flatten) {
     return path.join(m, suffix || '');
